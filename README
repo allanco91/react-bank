@@ -1,0 +1,15 @@
+## DEPENDENCIA ##
+
+npm i -g http-server
+
+## RODAR ##
+
+npm i
+
+gulp compile
+
+http-server .
+
+## WATCH ## 
+
+gulp watch
