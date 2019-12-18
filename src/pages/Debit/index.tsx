@@ -1,8 +1,9 @@
 import React, { Component, FormEvent } from "react";
 import moment from "moment";
 import { Redirect } from "react-router-dom";
+import { Container, Header, Form, Button } from "semantic-ui-react";
 
-import Menu from "../../components/Menu";
+import Navbar from "../../components/Navbar";
 
 import api from "../../services/api";
 
@@ -83,28 +84,37 @@ export default class Debit extends Component<MyProps, MyState> {
         const { shouldRedirect, success, error } = this.state;
 
         return (
-            <div>
-                <Menu />
-                <h1>Debit</h1>
-                <form onSubmit={this.handleSubmit}>
-                    <label htmlFor="Account">Account:</label>
-                    <input
-                        type="number"
-                        name="Account"
-                        onChange={e =>
-                            this.setState({ Account: Number(e.target.value) })
-                        }
-                    ></input>
-                    <label htmlFor="Value">Value:</label>
-                    <input
-                        name="Value"
-                        onChange={e =>
-                            this.setState({ Value: Number(e.target.value) })
-                        }
-                    ></input>
-
-                    <button type="submit">Create</button>
-                </form>
+            <>
+                <Navbar />
+                <Container>
+                    <Header as="h1">Debit</Header>
+                    <Form onSubmit={this.handleSubmit}>
+                        <Form.Field>
+                            <label>Account</label>
+                            <input
+                                type="number"
+                                name="Account"
+                                onChange={e =>
+                                    this.setState({
+                                        Account: Number(e.target.value)
+                                    })
+                                }
+                            ></input>
+                        </Form.Field>
+                        <Form.Field>
+                            <label>Value</label>
+                            <input
+                                name="Value"
+                                onChange={e =>
+                                    this.setState({
+                                        Value: Number(e.target.value)
+                                    })
+                                }
+                            ></input>
+                        </Form.Field>
+                        <Button type="submit">Create</Button>
+                    </Form>
+                </Container>
                 {shouldRedirect && success && (
                     <Redirect
                         to={{
@@ -129,7 +139,7 @@ export default class Debit extends Component<MyProps, MyState> {
                         }}
                     />
                 )}
-            </div>
+            </>
         );
     }
 }

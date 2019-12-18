@@ -1,7 +1,15 @@
 import React, { Component, FormEvent } from "react";
 import { Redirect } from "react-router-dom";
+import {
+    Container,
+    Header,
+    Form,
+    Button,
+    Table,
+    Divider
+} from "semantic-ui-react";
 
-import Menu from "../../components/Menu";
+import Navbar from "../../components/Navbar";
 import api from "../../services/api";
 
 class Error {
@@ -71,62 +79,79 @@ export default class AccountExtract extends Component<MyProps, MyState> {
 
         return (
             <>
-                <div>
-                    <Menu />
-                    <h1>Account Extract</h1>
-                    <form ref={el => (this.myFormRef = el)}>
-                        <label htmlFor="account">Account:</label>
-                        <input
-                            type="number"
-                            name="Account"
-                            onChange={e => {
-                                this.Account = Number(e.target.value);
-                            }}
-                        ></input>
-
-                        <button
+                <Navbar />
+                <Container>
+                    <Header as="h1">Account Extract</Header>
+                    <Form ref={(el: any) => (this.myFormRef = el)}>
+                        <Form.Field>
+                            <label htmlFor="account">Account</label>
+                            <input
+                                type="number"
+                                name="Account"
+                                onChange={e => {
+                                    this.Account = Number(e.target.value);
+                                }}
+                            ></input>
+                        </Form.Field>
+                        <Button
                             type="submit"
                             onClick={e => this.handleSubmit(e)}
                         >
                             Show
-                        </button>
-                    </form>
-                </div>
-                {Report !== null && (
-                    <div>
-                        <div>
-                            <h4>Extract of account number: {this.Account}</h4>
-                        </div>
-                        <div>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Value</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                        </Button>
+                    </Form>
+                    {Report !== null && (
+                        <>
+                            <Header as="h1">
+                                Extract of account number: {this.Account}
+                            </Header>
+                            <Divider />
+                            <Table celled>
+                                <Table.Header>
+                                    <Table.Row>
+                                        <Table.HeaderCell>
+                                            Date
+                                        </Table.HeaderCell>
+                                        <Table.HeaderCell>
+                                            Value
+                                        </Table.HeaderCell>
+                                    </Table.Row>
+                                </Table.Header>
+                                <Table.Body>
                                     {Report.map(transaction => (
-                                        <tr key={transaction.id}>
-                                            <td>{transaction.date}</td>
-                                            <td>{transaction.value}</td>
-                                        </tr>
+                                        <Table.Row
+                                            key={transaction.id}
+                                            className={
+                                                transaction.value < 0
+                                                    ? "negative"
+                                                    : "positive"
+                                            }
+                                        >
+                                            <Table.Cell>
+                                                {transaction.date}
+                                            </Table.Cell>
+                                            <Table.Cell>
+                                                {transaction.value}
+                                            </Table.Cell>
+                                        </Table.Row>
                                     ))}
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td>Balance:</td>
-                                        <td>
+                                </Table.Body>
+                                <Table.Footer>
+                                    <Table.Row>
+                                        <Table.HeaderCell>
+                                            Balance:
+                                        </Table.HeaderCell>
+                                        <Table.HeaderCell>
                                             {Report.map(x => x.value).reduce(
                                                 reducer
                                             )}
-                                        </td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-                )}
+                                        </Table.HeaderCell>
+                                    </Table.Row>
+                                </Table.Footer>
+                            </Table>
+                        </>
+                    )}
+                </Container>
                 {shouldRedirect && error && (
                     <Redirect
                         to={{

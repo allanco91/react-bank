@@ -1,7 +1,15 @@
 import React, { Component, FormEvent } from "react";
 import { Redirect } from "react-router-dom";
+import {
+    Container,
+    Header,
+    Form,
+    Button,
+    Table,
+    Divider
+} from "semantic-ui-react";
 
-import Menu from "../../components/Menu";
+import Navbar from "../../components/Navbar";
 import api from "../../services/api";
 
 class Error {
@@ -73,79 +81,96 @@ export default class MonthlyReport extends Component<MyProps, MyState> {
 
         return (
             <>
-                <div>
-                    <Menu />
-                    <h1>Monthly Report</h1>
-                    <form ref={el => (this.myFormRef = el)}>
-                        <label htmlFor="account">Account:</label>
-                        <input
-                            type="number"
-                            name="account"
-                            onChange={e => {
-                                this.Account = Number(e.target.value);
-                            }}
-                        ></input>
-                        <label htmlFor="year">Year:</label>
-                        <input
-                            type="number"
-                            name="year"
-                            onChange={e => {
-                                this.Year = Number(e.target.value);
-                            }}
-                        ></input>
-
-                        <button
+                <Navbar />
+                <Container>
+                    <Header as="h1">Monthly Report</Header>
+                    <Form ref={(el: any) => (this.myFormRef = el)}>
+                        <Form.Field>
+                            <label htmlFor="account">Account</label>
+                            <input
+                                type="number"
+                                name="account"
+                                onChange={e => {
+                                    this.Account = Number(e.target.value);
+                                }}
+                            ></input>
+                        </Form.Field>
+                        <Form.Field>
+                            <label htmlFor="year">Year</label>
+                            <input
+                                type="number"
+                                name="year"
+                                onChange={e => {
+                                    this.Year = Number(e.target.value);
+                                }}
+                            ></input>
+                        </Form.Field>
+                        <Button
                             type="submit"
                             onClick={e => this.handleSubmit(e)}
                         >
                             Show
-                        </button>
-                    </form>
-                </div>
-                {Report !== null && (
-                    <div>
-                        <div>
-                            <h4>
-                                Account {this.Account} monthly report of year:{" "}
+                        </Button>
+                    </Form>
+                    {Report !== null && (
+                        <>
+                            <Header as="h1">
+                                ACCOUNT {this.Account} MONTHLY REPORT OF YEAR:{" "}
                                 {this.Year}
-                            </h4>
-                        </div>
-                        <div>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Month</th>
-                                        <th>Account</th>
-                                        <th>Credit</th>
-                                        <th>Debit</th>
-                                        <th>Balance</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                            </Header>
+                            <Table celled>
+                                <Table.Header>
+                                    <Table.Row>
+                                        <Table.HeaderCell>
+                                            Month
+                                        </Table.HeaderCell>
+                                        <Table.HeaderCell>
+                                            Account
+                                        </Table.HeaderCell>
+                                        <Table.HeaderCell>
+                                            Credit
+                                        </Table.HeaderCell>
+                                        <Table.HeaderCell>
+                                            Debit
+                                        </Table.HeaderCell>
+                                        <Table.HeaderCell>
+                                            Balance
+                                        </Table.HeaderCell>
+                                    </Table.Row>
+                                </Table.Header>
+                                <Table.Body>
                                     {Report.map(x => (
-                                        <tr key={x.id}>
-                                            <td>{x.date}</td>
-                                            <td>{x.account}</td>
-                                            <td>{x.credit}</td>
-                                            <td>{x.debit}</td>
-                                            <td>{x.balance}</td>
-                                        </tr>
+                                        <Table.Row key={x.id}>
+                                            <Table.Cell>{x.date}</Table.Cell>
+                                            <Table.Cell>{x.account}</Table.Cell>
+                                            <Table.Cell className="positive">
+                                                {x.credit}
+                                            </Table.Cell>
+                                            <Table.Cell className="negative">
+                                                {x.debit}
+                                            </Table.Cell>
+                                            <Table.Cell className="warning">
+                                                {x.balance}
+                                            </Table.Cell>
+                                        </Table.Row>
                                     ))}
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td colSpan={4}>Balance:</td>
-                                        <td>
+                                </Table.Body>
+                                <Table.Footer>
+                                    <Table.Row>
+                                        <Table.HeaderCell colSpan={4}>
+                                            Balance:
+                                        </Table.HeaderCell>
+                                        <Table.HeaderCell>
                                             {Report.map(x => x.balance).reduce(
                                                 reducer
                                             )}
-                                        </td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-                )}
+                                        </Table.HeaderCell>
+                                    </Table.Row>
+                                </Table.Footer>
+                            </Table>
+                        </>
+                    )}
+                </Container>
                 {shouldRedirect && error && (
                     <Redirect
                         to={{

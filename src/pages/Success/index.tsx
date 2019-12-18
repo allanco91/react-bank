@@ -1,13 +1,13 @@
 import React from "react";
 
-import Menu from "../../components/Menu";
+import Navbar from "../../components/Navbar";
 
 const Success = (props: any) => {
     const { message, value, balance } = props.location.state;
 
     return (
         <>
-            <Menu />
+            <Navbar />
             <h3>Success</h3>
             <p>{message}</p>
             <p>Value: {value}</p>
