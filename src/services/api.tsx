@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://localhost:44369/api/transactions',
+    baseURL: 'https://localhost:5001/api/transactions',
 })
 
 export default api

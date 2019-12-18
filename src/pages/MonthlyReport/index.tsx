@@ -1,20 +1,21 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 
-import Menu from '../../components/Menu'
-import api from '../../services/api'
+import Menu from "../../components/Menu";
+import api from "../../services/api";
 
-type MyProps = {};
-type MyState = {
-    report: [],
-};
+interface MyProps {}
+
+interface MyState {
+    report: [];
+}
 
 export default class MonthlyReport extends Component<MyProps, MyState> {
     constructor(props: any) {
         super(props);
 
         this.state = {
-            report: [],
-        }
+            report: []
+        };
     }
 
     render() {
@@ -34,7 +35,10 @@ export default class MonthlyReport extends Component<MyProps, MyState> {
                 </div>
                 <div>
                     <div>
-                        <h4>Account @ViewData["account"] monthly report of year: @ViewData["year"]</h4>
+                        <h4>
+                            Account @ViewData["account"] monthly report of year:
+                            @ViewData["year"]
+                        </h4>
                     </div>
                     <div>
                         <table>
@@ -49,17 +53,30 @@ export default class MonthlyReport extends Component<MyProps, MyState> {
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>@Html.DisplayFor(Model => item.Date)</td>
-                                    <td>@Html.DisplayFor(Model => item.Account)</td>
-                                    <td>@Html.DisplayFor(Model => item.Credit)</td>
-                                    <td>@Html.DisplayFor(Model => item.Debit)</td>
-                                    <td>@Html.DisplayFor(Model => item.Balance)</td>
+                                    <td>
+                                        @Html.DisplayFor(Model => item.Date)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(Model => item.Account)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(Model => item.Credit)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(Model => item.Debit)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(Model => item.Balance)
+                                    </td>
                                 </tr>
                             </tbody>
                             <tfoot>
                                 <tr>
                                     <td colSpan={4}>Balance:</td>
-                                    <td>@Model.Sum(obj => obj.Balance).ToString("F2")</td>
+                                    <td>
+                                        @Model.Sum(obj =>
+                                        obj.Balance).ToString("F2")
+                                    </td>
                                 </tr>
                             </tfoot>
                         </table>

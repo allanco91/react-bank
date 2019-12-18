@@ -1,21 +1,34 @@
-import React, { Component } from 'react';
+import React, { Component, FormEvent } from "react";
 
-import Menu from '../../components/Menu'
-import api from '../../services/api'
+import Menu from "../../components/Menu";
+import api from "../../services/api";
 
-type MyProps = {};
-type MyState = {
-    report: [],
-};
+interface MyProps {}
+
+interface MyState {
+    Account: number;
+    report: [];
+}
 
 export default class AccountExtract extends Component<MyProps, MyState> {
     constructor(props: any) {
         super(props);
 
         this.state = {
-            report: [],
-        }
+            Account: 0,
+            report: []
+        };
     }
+
+    handleSubmit = async (event: FormEvent) => {
+        event.preventDefault();
+
+        const { Account } = this.state;
+
+        const { data } = await api.get(`/accountextract/${Account}`);
+        this.setState({ report: data });
+        console.log(this.state);
+    };
 
     render() {
         return (
@@ -25,9 +38,22 @@ export default class AccountExtract extends Component<MyProps, MyState> {
                     <h1>Account Extract</h1>
                     <form>
                         <label htmlFor="account">Account:</label>
-                        <input id="account" name="account"></input>
+                        <input
+                            type="number"
+                            name="Account"
+                            onChange={e =>
+                                this.setState({
+                                    Account: Number(e.target.value)
+                                })
+                            }
+                        ></input>
 
-                        <button type="submit">Show</button>
+                        <button
+                            type="submit"
+                            onClick={e => this.handleSubmit(e)}
+                        >
+                            Show
+                        </button>
                     </form>
                 </div>
 
@@ -39,20 +65,33 @@ export default class AccountExtract extends Component<MyProps, MyState> {
                         <table>
                             <thead>
                                 <tr>
-                                    <th>@Html.DisplayNameFor(model => model.Date)</th>
-                                    <th>@Html.DisplayNameFor(model => model.Value)</th>
+                                    <th>
+                                        @Html.DisplayNameFor(model =>
+                                        model.Date)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model =>
+                                        model.Value)
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>@Html.DisplayFor(Model => item.Date)</td>
-                                    <td>@Html.DisplayFor(Model => item.Value)</td>
+                                    <td>
+                                        @Html.DisplayFor(Model => item.Date)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(Model => item.Value)
+                                    </td>
                                 </tr>
                             </tbody>
                             <tfoot>
                                 <tr>
                                     <td>Balance:</td>
-                                    <td>@Model.Sum(obj => obj.Value).ToString("F2")</td>
+                                    <td>
+                                        @Model.Sum(obj =>
+                                        obj.Value).ToString("F2")
+                                    </td>
                                 </tr>
                             </tfoot>
                         </table>
