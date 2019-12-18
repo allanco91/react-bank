@@ -1,13 +1,28 @@
 import React, { Component, FormEvent } from "react";
 import moment from "moment";
+import { Redirect } from "react-router-dom";
 
 import Menu from "../../components/Menu";
 
 import api from "../../services/api";
 
+class Success {
+    message: string;
+    value: number;
+    balance: number;
+}
+
+class Error {
+    status: number;
+    message: string;
+}
+
 interface MyProps {}
 
 interface MyState {
+    shouldRedirect: boolean;
+    success: Success;
+    error: Error;
     Account: number;
     Value: number;
     IsDebit: boolean;
@@ -19,6 +34,9 @@ export default class Debit extends Component<MyProps, MyState> {
         super(props);
 
         this.state = {
+            shouldRedirect: false,
+            success: null,
+            error: null,
             Account: 0,
             Value: 0,
             IsDebit: true,
@@ -29,22 +47,43 @@ export default class Debit extends Component<MyProps, MyState> {
     handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
 
+        const { Account, Value, IsDebit, Date } = this.state;
+
+        const data = {
+            Account,
+            Value,
+            IsDebit,
+            Date
+        };
+
         await api
-            .post("/debit", this.state)
+            .post("/debit", data)
             .then(response => {
-                console.log("Status: " + response.status);
-                console.log("Message: " + response.data.message);
-                console.log("Value: " + response.data.value);
-                console.log("Balance: " + response.data.balance);
+                this.setState({
+                    shouldRedirect: true,
+                    success: {
+                        message: response.data.message,
+                        value: response.data.value,
+                        balance: response.data.balance
+                    }
+                });
             })
             .catch(error => {
                 console.log("Status: " + error.response.status);
                 console.log("Erro: " + error.response.data.error);
-                console.log(error);
+                this.setState({
+                    shouldRedirect: true,
+                    error: {
+                        status: error.response.status,
+                        message: error.response.data.error
+                    }
+                });
             });
     };
 
     render() {
+        const { shouldRedirect, success, error } = this.state;
+
         return (
             <div>
                 <Menu />
@@ -68,6 +107,30 @@ export default class Debit extends Component<MyProps, MyState> {
 
                     <button type="submit">Create</button>
                 </form>
+                {shouldRedirect && success && (
+                    <Redirect
+                        to={{
+                            pathname: "/success",
+                            state: {
+                                message: success.message,
+                                value: success.value,
+                                balance: success.balance
+                            }
+                        }}
+                    />
+                )}
+
+                {shouldRedirect && error && (
+                    <Redirect
+                        to={{
+                            pathname: "/error",
+                            state: {
+                                status: error.status,
+                                message: error.message
+                            }
+                        }}
+                    />
+                )}
             </div>
         );
     }

@@ -3,7 +3,7 @@ import React from "react";
 import Menu from "../../components/Menu";
 
 const Success = (props: any) => {
-    const { message, value, balance } = props;
+    const { message, value, balance } = props.location.state;
 
     return (
         <>
