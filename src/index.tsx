@@ -1,7 +1,7 @@
-import * as React from "react"
-import * as ReactDOM from "react-dom"
+import * as React from "react";
+import * as ReactDOM from "react-dom";
 
-import Routes from './routes'
+import Routes from "./routes";
 
 class IndexPage extends React.Component {
     render() {

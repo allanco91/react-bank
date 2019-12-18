@@ -31,15 +31,13 @@ export default class Debit extends Component<MyProps, MyState> {
 
         await api
             .post("/debit", this.state)
-            .then(function(response) {
-                // handle success
+            .then(response => {
                 console.log("Status: " + response.status);
                 console.log("Message: " + response.data.message);
                 console.log("Value: " + response.data.value);
                 console.log("Balance: " + response.data.balance);
             })
-            .catch(function(error) {
-                // handle error
+            .catch(error => {
                 console.log("Status: " + error.response.status);
                 console.log("Erro: " + error.response.data.error);
                 console.log(error);

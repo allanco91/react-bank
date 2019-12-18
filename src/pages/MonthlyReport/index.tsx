@@ -1,87 +1,134 @@
-import React, { Component } from "react";
+import React, { Component, FormEvent } from "react";
 
 import Menu from "../../components/Menu";
 import api from "../../services/api";
 
+class Report {
+    id: number;
+    account: number;
+    date: string;
+    credit: number;
+    debit: number;
+    balance: number;
+}
+
 interface MyProps {}
 
 interface MyState {
-    report: [];
+    Report: Report[];
 }
 
 export default class MonthlyReport extends Component<MyProps, MyState> {
+    myFormRef: HTMLFormElement;
+    Account: number;
+    Year: number;
+
     constructor(props: any) {
         super(props);
 
         this.state = {
-            report: []
+            Report: null
         };
     }
 
+    reset = () => {
+        this.myFormRef.reset();
+    };
+
+    handleSubmit = async (event: FormEvent) => {
+        event.preventDefault();
+
+        await api
+            .get(`/monthlyreport/${this.Year}/${this.Account}`)
+            .then(response => {
+                this.setState({ Report: response.data });
+            })
+            .catch(error => console.log(error));
+        console.log(this.state);
+        this.reset();
+    };
+
     render() {
+        const { Report } = this.state;
+
+        const reducer = (accumulator: number, currentValue: number) =>
+            accumulator + currentValue;
+
         return (
             <>
                 <div>
                     <Menu />
                     <h1>Monthly Report</h1>
-                    <form>
+                    <form ref={el => (this.myFormRef = el)}>
                         <label htmlFor="account">Account:</label>
-                        <input id="account" name="account"></input>
+                        <input
+                            type="number"
+                            name="account"
+                            onChange={e => {
+                                this.Account = Number(e.target.value);
+                            }}
+                        ></input>
                         <label htmlFor="year">Year:</label>
-                        <input id="year" name="year"></input>
+                        <input
+                            type="number"
+                            name="year"
+                            onChange={e => {
+                                this.Year = Number(e.target.value);
+                            }}
+                        ></input>
 
-                        <button type="submit">Show</button>
+                        <button
+                            type="submit"
+                            onClick={e => this.handleSubmit(e)}
+                        >
+                            Show
+                        </button>
                     </form>
                 </div>
-                <div>
+                {Report !== null && (
                     <div>
-                        <h4>
-                            Account @ViewData["account"] monthly report of year:
-                            @ViewData["year"]
-                        </h4>
+                        <div>
+                            <h4>
+                                Account {this.Account} monthly report of year:{" "}
+                                {this.Year}
+                            </h4>
+                        </div>
+                        <div>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Month</th>
+                                        <th>Account</th>
+                                        <th>Credit</th>
+                                        <th>Debit</th>
+                                        <th>Balance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {Report.map(x => (
+                                        <tr key={x.id}>
+                                            <td>{x.date}</td>
+                                            <td>{x.account}</td>
+                                            <td>{x.credit}</td>
+                                            <td>{x.debit}</td>
+                                            <td>{x.balance}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colSpan={4}>Balance:</td>
+                                        <td>
+                                            {Report.map(x => x.balance).reduce(
+                                                reducer
+                                            )}
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
                     </div>
-                    <div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Month</th>
-                                    <th>Account</th>
-                                    <th>Credit</th>
-                                    <th>Debit</th>
-                                    <th>Balance</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        @Html.DisplayFor(Model => item.Date)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(Model => item.Account)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(Model => item.Credit)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(Model => item.Debit)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(Model => item.Balance)
-                                    </td>
-                                </tr>
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colSpan={4}>Balance:</td>
-                                    <td>
-                                        @Model.Sum(obj =>
-                                        obj.Balance).ToString("F2")
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
+                )}
             </>
         );
     }

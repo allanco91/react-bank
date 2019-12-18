@@ -3,49 +3,68 @@ import React, { Component, FormEvent } from "react";
 import Menu from "../../components/Menu";
 import api from "../../services/api";
 
+class Report {
+    id: string;
+    account: number;
+    value: number;
+    isDebit: boolean;
+    date: string;
+}
+
 interface MyProps {}
 
 interface MyState {
-    Account: number;
-    report: [];
+    Report: Report[];
 }
 
 export default class AccountExtract extends Component<MyProps, MyState> {
+    myFormRef: HTMLFormElement;
+    Account: number;
+
     constructor(props: any) {
         super(props);
 
         this.state = {
-            Account: 0,
-            report: []
+            Report: null
         };
     }
+
+    reset = () => {
+        this.myFormRef.reset();
+    };
 
     handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
 
-        const { Account } = this.state;
-
-        const { data } = await api.get(`/accountextract/${Account}`);
-        this.setState({ report: data });
+        await api
+            .get(`/accountextract/${this.Account}`)
+            .then(response => {
+                this.setState({ Report: response.data });
+            })
+            .catch(error => console.log(error));
         console.log(this.state);
+        this.reset();
     };
 
     render() {
+        const { Report } = this.state;
+
+        const reducer = (accumulator: number, currentValue: number) =>
+            accumulator + currentValue;
+
         return (
             <>
                 <div>
                     <Menu />
                     <h1>Account Extract</h1>
-                    <form>
+                    <form ref={el => (this.myFormRef = el)}>
                         <label htmlFor="account">Account:</label>
                         <input
                             type="number"
                             name="Account"
-                            onChange={e =>
-                                this.setState({
-                                    Account: Number(e.target.value)
-                                })
-                            }
+                            onChange={e => {
+                                this.Account = Number(e.target.value);
+                            }}
                         ></input>
 
                         <button
@@ -56,47 +75,41 @@ export default class AccountExtract extends Component<MyProps, MyState> {
                         </button>
                     </form>
                 </div>
-
-                <div>
+                {Report !== null && (
                     <div>
-                        <h4>Extract of account number: @ViewData["account"]</h4>
+                        <div>
+                            <h4>Extract of account number: {this.Account}</h4>
+                        </div>
+                        <div>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {Report.map(transaction => (
+                                        <tr key={transaction.id}>
+                                            <td>{transaction.date}</td>
+                                            <td>{transaction.value}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td>Balance:</td>
+                                        <td>
+                                            {Report.map(x => x.value).reduce(
+                                                reducer
+                                            )}
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
                     </div>
-                    <div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>
-                                        @Html.DisplayNameFor(model =>
-                                        model.Date)
-                                    </th>
-                                    <th>
-                                        @Html.DisplayNameFor(model =>
-                                        model.Value)
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        @Html.DisplayFor(Model => item.Date)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(Model => item.Value)
-                                    </td>
-                                </tr>
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td>Balance:</td>
-                                    <td>
-                                        @Model.Sum(obj =>
-                                        obj.Value).ToString("F2")
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
+                )}
             </>
         );
     }
