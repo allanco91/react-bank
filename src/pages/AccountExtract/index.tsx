@@ -1,7 +1,13 @@
 import React, { Component, FormEvent } from "react";
+import { Redirect } from "react-router-dom";
 
 import Menu from "../../components/Menu";
 import api from "../../services/api";
+
+class Error {
+    status: number;
+    message: string;
+}
 
 class Report {
     id: string;
@@ -14,6 +20,8 @@ class Report {
 interface MyProps {}
 
 interface MyState {
+    shouldRedirect: boolean;
+    error: Error;
     Report: Report[];
 }
 
@@ -25,6 +33,8 @@ export default class AccountExtract extends Component<MyProps, MyState> {
         super(props);
 
         this.state = {
+            shouldRedirect: false,
+            error: null,
             Report: null
         };
     }
@@ -40,14 +50,21 @@ export default class AccountExtract extends Component<MyProps, MyState> {
             .get(`/accountextract/${this.Account}`)
             .then(response => {
                 this.setState({ Report: response.data });
+                this.reset();
             })
-            .catch(error => console.log(error));
-        console.log(this.state);
-        this.reset();
+            .catch(error => {
+                this.setState({
+                    shouldRedirect: true,
+                    error: {
+                        status: error.response.status,
+                        message: error.response.data.error
+                    }
+                });
+            });
     };
 
     render() {
-        const { Report } = this.state;
+        const { shouldRedirect, error, Report } = this.state;
 
         const reducer = (accumulator: number, currentValue: number) =>
             accumulator + currentValue;
@@ -109,6 +126,17 @@ export default class AccountExtract extends Component<MyProps, MyState> {
                             </table>
                         </div>
                     </div>
+                )}
+                {shouldRedirect && error && (
+                    <Redirect
+                        to={{
+                            pathname: "/error",
+                            state: {
+                                status: error.status,
+                                message: error.message
+                            }
+                        }}
+                    />
                 )}
             </>
         );

@@ -69,8 +69,6 @@ export default class Debit extends Component<MyProps, MyState> {
                 });
             })
             .catch(error => {
-                console.log("Status: " + error.response.status);
-                console.log("Erro: " + error.response.data.error);
                 this.setState({
                     shouldRedirect: true,
                     error: {
