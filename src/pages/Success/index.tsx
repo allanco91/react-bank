@@ -1,4 +1,5 @@
 import React from "react";
+import { Container, Header, Divider, Message } from "semantic-ui-react";
 
 import Navbar from "../../components/Navbar";
 
@@ -8,10 +9,15 @@ const Success = (props: any) => {
     return (
         <>
             <Navbar />
-            <h3>Success</h3>
-            <p>{message}</p>
-            <p>Value: {value}</p>
-            <p>New balance: {balance}</p>
+            <Container>
+                <Header as="h1">Success</Header>
+                <Divider />
+                <Message positive>
+                    <p>{message}</p>
+                    <p>Value: {value}</p>
+                    <p>New balance: {balance}</p>
+                </Message>
+            </Container>
         </>
     );
 };

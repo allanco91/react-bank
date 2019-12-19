@@ -11,34 +11,24 @@ import {
 } from "semantic-ui-react";
 import NumberFormat from "react-number-format";
 
+// Components
 import Navbar from "../../components/Navbar";
 
+// Interfaces
+import ISuccess from "../../interfaces/ISuccess";
+import IError from "../../interfaces/IError";
+import IValidationForm from "../../interfaces/IValidationForm";
+
+// Services
 import api from "../../services/api";
-
-interface Success {
-    message: string;
-    value: number;
-    balance: number;
-}
-
-interface Error {
-    status: number;
-    message: string;
-}
-
-interface ValidationForm {
-    show: boolean;
-    account: string;
-    value: string;
-}
 
 type Props = {};
 
 type State = {
-    validationForm: ValidationForm;
+    validationForm: IValidationForm;
     shouldRedirect: boolean;
-    success: Success;
-    error: Error;
+    success: ISuccess;
+    error: IError;
     Account: number;
     Value: number;
     IsDebit: boolean;

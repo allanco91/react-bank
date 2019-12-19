@@ -4,20 +4,16 @@ import { Button, Header } from "semantic-ui-react";
 import Navbar from "../../components/Navbar";
 import api from "../../services/api";
 
-interface MyProps {}
+type Props = {};
 
-interface MyState {
+type State = {
     message: string;
-}
+};
 
-export default class Home extends Component<MyProps, MyState> {
-    constructor(props: any) {
-        super(props);
-
-        this.state = {
-            message: "Welcome to BankAPP"
-        };
-    }
+export default class Home extends Component<Props, State> {
+    state: State = {
+        message: "Welcome to BankAPP"
+    };
 
     getMessage = async () => {
         const { data } = await api.get("/hello");

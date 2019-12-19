@@ -11,66 +11,40 @@ import {
 } from "semantic-ui-react";
 import NumberFormat from "react-number-format";
 
+// Components
 import Navbar from "../../components/Navbar";
+
+// Interfaces
+import IError from "../../interfaces/IError";
+import IValidationForm from "../../interfaces/IValidationForm";
+import IMonthlyReport from "../../interfaces/IMonthlyReport";
+
+// Services
 import api from "../../services/api";
 
-interface Error {
-    status: number;
-    message: string;
-}
+type Props = {};
 
-interface Report {
-    id: number;
-    account: number;
-    date: string;
-    credit: number;
-    debit: number;
-    balance: number;
-}
-
-interface ValidationForm {
-    show: boolean;
-    account: string;
-    year: string;
-}
-
-interface Props {}
-
-interface State {
+type State = {
     account: number;
     year: number;
-    validationForm: ValidationForm;
+    validationForm: IValidationForm;
     shouldRedirect: boolean;
-    error: Error;
-    Report: Report[];
-}
+    error: IError;
+    Report: IMonthlyReport[];
+};
 
 export default class MonthlyReport extends Component<Props, State> {
-    constructor(props: any) {
-        super(props);
-
-        this.state = {
-            account: 0,
-            year: 0,
-            validationForm: {
-                show: false,
-                account: "",
-                year: ""
-            },
-            shouldRedirect: false,
-            error: null,
-            Report: null
-        };
-    }
-
-    handleKeyUp = (event: HTMLInputElement) => {
-        var ex = /^[0-9]+\.?[0-9]*$/;
-        if (ex.test(event.nodeValue) == false) {
-            event.nodeValue = event.nodeValue.substring(
-                0,
-                event.nodeValue.length - 1
-            );
-        }
+    state: State = {
+        account: 0,
+        year: 0,
+        validationForm: {
+            show: false,
+            account: "",
+            year: ""
+        },
+        shouldRedirect: false,
+        error: null,
+        Report: null
     };
 
     handleSubmit = async (event: FormEvent) => {

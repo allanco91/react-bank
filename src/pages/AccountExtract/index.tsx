@@ -11,52 +11,38 @@ import {
 } from "semantic-ui-react";
 import NumberFormat from "react-number-format";
 
+// Components
 import Navbar from "../../components/Navbar";
+
+// Interfaces
+import IError from "../../interfaces/IError";
+import IValidationForm from "../../interfaces/IValidationForm";
+import IAccountExtractReport from "../../interfaces/IAccountExtractReport";
+
+// Services
 import api from "../../services/api";
 
-interface Error {
-    status: number;
-    message: string;
-}
+type Props = {};
 
-interface Report {
-    id: string;
+type State = {
     account: number;
-    value: number;
-    isDebit: boolean;
-    date: string;
-}
-
-interface ValidationForm {
-    show: boolean;
-    account: string;
-}
-
-interface Props {}
-
-interface State {
-    account: number;
-    validationForm: ValidationForm;
+    validationForm: IValidationForm;
     shouldRedirect: boolean;
-    error: Error;
-    Report: Report[];
-}
+    error: IError;
+    Report: IAccountExtractReport[];
+};
 
 export default class AccountExtract extends Component<Props, State> {
-    constructor(props: any) {
-        super(props);
-
-        this.state = {
-            account: 0,
-            validationForm: {
-                show: false,
-                account: ""
-            },
-            shouldRedirect: false,
-            error: null,
-            Report: null
-        };
-    }
+    state: State = {
+        account: 0,
+        validationForm: {
+            show: false,
+            account: ""
+        },
+        shouldRedirect: false,
+        error: null,
+        Report: null
+    };
 
     handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
