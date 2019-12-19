@@ -1,26 +1,41 @@
 import React, { Component, FormEvent } from "react";
 import moment from "moment";
 import { Redirect } from "react-router-dom";
-import { Container, Header, Form, Button } from "semantic-ui-react";
+import {
+    Container,
+    Header,
+    Form,
+    Button,
+    Divider,
+    Message
+} from "semantic-ui-react";
+import NumberFormat from "react-number-format";
 
 import Navbar from "../../components/Navbar";
 
 import api from "../../services/api";
 
-class Success {
+interface Success {
     message: string;
     value: number;
     balance: number;
 }
 
-class Error {
+interface Error {
     status: number;
     message: string;
 }
 
-interface MyProps {}
+interface ValidationForm {
+    show: boolean;
+    account: string;
+    value: string;
+}
 
-interface MyState {
+type Props = {};
+
+type State = {
+    validationForm: ValidationForm;
     shouldRedirect: boolean;
     success: Success;
     error: Error;
@@ -28,26 +43,28 @@ interface MyState {
     Value: number;
     IsDebit: boolean;
     Date: string;
-}
+};
 
-export default class Debit extends Component<MyProps, MyState> {
-    constructor(props: any) {
-        super(props);
-
-        this.state = {
-            shouldRedirect: false,
-            success: null,
-            error: null,
-            Account: 0,
-            Value: 0,
-            IsDebit: true,
-            Date: moment().format()
-        };
-    }
+export default class Debit extends Component<Props, State> {
+    state: State = {
+        validationForm: {
+            show: false,
+            account: "",
+            value: ""
+        },
+        shouldRedirect: false,
+        success: null,
+        error: null,
+        Account: 0,
+        Value: 0,
+        IsDebit: true,
+        Date: moment().format()
+    };
 
     handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
 
+        let formError: boolean = false;
         const { Account, Value, IsDebit, Date } = this.state;
 
         const data = {
@@ -57,66 +74,102 @@ export default class Debit extends Component<MyProps, MyState> {
             Date
         };
 
-        await api
-            .post("/debit", data)
-            .then(response => {
-                this.setState({
-                    shouldRedirect: true,
-                    success: {
-                        message: response.data.message,
-                        value: response.data.value,
-                        balance: response.data.balance
-                    }
+        if (Account <= 0) {
+            formError = true;
+            this.setState(prevState => ({
+                validationForm: {
+                    show: true,
+                    account: "Account number must be greater than 0",
+                    value: prevState.validationForm.value
+                }
+            }));
+        }
+
+        if (Value <= 0) {
+            formError = true;
+            this.setState(prevState => ({
+                validationForm: {
+                    show: true,
+                    account: prevState.validationForm.account,
+                    value: "Value must be greater than 0"
+                }
+            }));
+        }
+
+        if (!formError) {
+            await api
+                .post("/debit", data)
+                .then(response => {
+                    this.setState({
+                        shouldRedirect: true,
+                        success: {
+                            message: response.data.message,
+                            value: response.data.value,
+                            balance: response.data.balance
+                        }
+                    });
+                })
+                .catch(error => {
+                    this.setState({
+                        shouldRedirect: true,
+                        error: {
+                            status: error.response.status,
+                            message: error.response.data.error
+                        }
+                    });
                 });
-            })
-            .catch(error => {
-                this.setState({
-                    shouldRedirect: true,
-                    error: {
-                        status: error.response.status,
-                        message: error.response.data.error
-                    }
-                });
-            });
+        }
     };
 
     render() {
-        const { shouldRedirect, success, error } = this.state;
+        const { validationForm, shouldRedirect, success, error } = this.state;
 
         return (
             <>
                 <Navbar />
                 <Container>
                     <Header as="h1">Debit</Header>
+                    <Divider />
+                    {validationForm.show && (
+                        <Message error>
+                            <Message.Header>
+                                There was some errors with your submission
+                            </Message.Header>
+                            <p>{validationForm.account}</p>
+                            <p>{validationForm.value}</p>
+                        </Message>
+                    )}
                     <Form onSubmit={this.handleSubmit}>
                         <Form.Field>
                             <label>Account</label>
-                            <input
-                                type="number"
-                                name="Account"
-                                onChange={e =>
+                            <NumberFormat
+                                format="#######"
+                                placeholder="Enter an account number"
+                                onChange={e => {
                                     this.setState({
                                         Account: Number(e.target.value)
-                                    })
-                                }
-                            ></input>
+                                    });
+                                }}
+                            ></NumberFormat>
                         </Form.Field>
                         <Form.Field>
                             <label>Value</label>
-                            <input
-                                name="Value"
+                            <NumberFormat
+                                decimalScale={2}
+                                placeholder="Enter a value"
                                 onChange={e =>
                                     this.setState({
                                         Value: Number(e.target.value)
                                     })
                                 }
-                            ></input>
+                            ></NumberFormat>
                         </Form.Field>
                         <Button type="submit">Create</Button>
                     </Form>
                 </Container>
                 {shouldRedirect && success && (
                     <Redirect
+                        push
                         to={{
                             pathname: "/success",
                             state: {
@@ -130,6 +183,7 @@ export default class Debit extends Component<MyProps, MyState> {
 
                 {shouldRedirect && error && (
                     <Redirect
+                        push
                         to={{
                             pathname: "/error",
                             state: {

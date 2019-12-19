@@ -9,6 +9,7 @@ import {
     Divider,
     Message
 } from "semantic-ui-react";
+import NumberFormat from "react-number-format";
 
 import Navbar from "../../components/Navbar";
 import api from "../../services/api";
@@ -74,7 +75,7 @@ export default class AccountExtract extends Component<Props, State> {
             });
         }
 
-        if (formError === false) {
+        if (!formError) {
             await api
                 .get(`/accountextract/${account}`)
                 .then(response => {
@@ -121,16 +122,16 @@ export default class AccountExtract extends Component<Props, State> {
                     <Form>
                         <Form.Field>
                             <label htmlFor="account">Account</label>
-                            <input
-                                type="number"
-                                name="Account"
+                            <NumberFormat
+                                inputMode="numeric"
+                                format="#######"
                                 placeholder="Enter an account number"
                                 onChange={e => {
                                     this.setState({
                                         account: Number(e.target.value)
                                     });
                                 }}
-                            ></input>
+                            ></NumberFormat>
                         </Form.Field>
                         <Button
                             type="submit"
@@ -191,6 +192,7 @@ export default class AccountExtract extends Component<Props, State> {
                 </Container>
                 {shouldRedirect && error && (
                     <Redirect
+                        push
                         to={{
                             pathname: "/error",
                             state: {

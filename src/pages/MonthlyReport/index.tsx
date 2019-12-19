@@ -9,10 +9,10 @@ import {
     Divider,
     Message
 } from "semantic-ui-react";
+import NumberFormat from "react-number-format";
 
 import Navbar from "../../components/Navbar";
 import api from "../../services/api";
-import { string } from "yup";
 
 interface Error {
     status: number;
@@ -63,10 +63,13 @@ export default class MonthlyReport extends Component<Props, State> {
         };
     }
 
-    handleKeyUp = (event: HTMLFormElement) => {
+    handleKeyUp = (event: HTMLInputElement) => {
         var ex = /^[0-9]+\.?[0-9]*$/;
-        if (ex.test(event.value) == false) {
-            event.value = event.value.substring(0, event.value.length - 1);
+        if (ex.test(event.nodeValue) == false) {
+            event.nodeValue = event.nodeValue.substring(
+                0,
+                event.nodeValue.length - 1
+            );
         }
     };
 
@@ -100,7 +103,7 @@ export default class MonthlyReport extends Component<Props, State> {
             }));
         }
 
-        if (formError === false) {
+        if (!formError) {
             await api
                 .get(`/monthlyreport/${year}/${account}`)
                 .then(response => {
@@ -149,29 +152,29 @@ export default class MonthlyReport extends Component<Props, State> {
                     <Form>
                         <Form.Field>
                             <label htmlFor="account">Account</label>
-                            <input
-                                type="number"
-                                name="account"
+                            <NumberFormat
+                                inputMode="numeric"
+                                format="#######"
                                 placeholder="Enter an account number"
                                 onChange={e => {
                                     this.setState({
                                         account: Number(e.target.value)
                                     });
                                 }}
-                            ></input>
+                            ></NumberFormat>
                         </Form.Field>
                         <Form.Field>
                             <label htmlFor="year">Year</label>
-                            <input
-                                type="number"
-                                name="year"
+                            <NumberFormat
+                                inputMode="numeric"
+                                format="####"
                                 placeholder="Enter a year"
                                 onChange={e => {
                                     this.setState({
                                         year: Number(e.target.value)
                                     });
                                 }}
-                            ></input>
+                            ></NumberFormat>
                         </Form.Field>
                         <Button
                             type="submit"
@@ -238,6 +241,7 @@ export default class MonthlyReport extends Component<Props, State> {
                 </Container>
                 {shouldRedirect && error && (
                     <Redirect
+                        push
                         to={{
                             pathname: "/error",
                             state: {
