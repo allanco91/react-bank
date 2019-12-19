@@ -36,6 +36,10 @@ type State = {
 };
 
 export default class Credit extends Component<Props, State> {
+    constructor(props: Props) {
+        super(props);
+    }
+
     state: State = {
         validationForm: {
             show: false,

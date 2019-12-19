@@ -35,6 +35,10 @@ type State = {
 };
 
 export default class MonthlyReport extends Component<Props, State> {
+    constructor(props: Props) {
+        super(props);
+    }
+
     state: State = {
         account: 0,
         year: 0,

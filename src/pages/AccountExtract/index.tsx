@@ -34,6 +34,10 @@ type State = {
 };
 
 export default class AccountExtract extends Component<Props, State> {
+    constructor(props: Props) {
+        super(props);
+    }
+
     state: State = {
         account: 0,
         validationForm: {
