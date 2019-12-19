@@ -47,24 +47,30 @@ export default class AccountExtract extends Component<Props, State> {
 
     balance: number;
 
+    formIsValid = () => {
+        const { account } = this.state;
+
+        const checkAccount = account > 0;
+
+        this.setState(prevState => ({
+            validationForm: {
+                show: !checkAccount,
+                account: !checkAccount
+                    ? "Account number must be greater than 0"
+                    : ""
+            },
+            Report: !checkAccount ? null : prevState.Report
+        }));
+
+        return checkAccount;
+    };
+
     handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
 
-        let formError: boolean = false;
         const { account } = this.state;
 
-        if (account <= 0) {
-            formError = true;
-            this.setState({
-                validationForm: {
-                    show: true,
-                    account: "Account number must be greater than 0"
-                },
-                Report: null
-            });
-        }
-
-        if (!formError) {
+        if (this.formIsValid()) {
             await api
                 .get(`/accountextract/${account}`)
                 .then(response => {
@@ -182,7 +188,7 @@ export default class AccountExtract extends Component<Props, State> {
                                                 value={
                                                     (this.balance = Report.map(
                                                         x => x.value
-                                                    ).reduce(reducer))
+                                                    ).reduce(reducer, 0))
                                                 }
                                                 displayType="text"
                                                 thousandSeparator={true}

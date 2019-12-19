@@ -50,37 +50,32 @@ export default class MonthlyReport extends Component<Props, State> {
 
     balance: number;
 
+    formIsValid = () => {
+        const { account, year } = this.state;
+
+        const checkAccount = account > 0;
+        const checkYear = year > 0;
+
+        this.setState(prevState => ({
+            validationForm: {
+                show: !checkAccount || !checkYear,
+                account: !checkAccount
+                    ? "Account number must be greater than 0"
+                    : "",
+                year: !checkYear ? "Year is not valid" : ""
+            },
+            Report: !checkAccount ? null : prevState.Report
+        }));
+
+        return checkAccount && checkYear;
+    };
+
     handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
 
-        let formError: boolean = false;
         const { account, year } = this.state;
 
-        if (account <= 0) {
-            formError = true;
-            this.setState(prevState => ({
-                validationForm: {
-                    show: true,
-                    account: "Account number must be greater than 0",
-                    year: prevState.validationForm.year
-                },
-                Report: null
-            }));
-        }
-
-        if (year <= 0) {
-            formError = true;
-            this.setState(prevState => ({
-                validationForm: {
-                    show: true,
-                    account: prevState.validationForm.account,
-                    year: "Year is not valid"
-                },
-                Report: null
-            }));
-        }
-
-        if (!formError) {
+        if (this.formIsValid()) {
             await api
                 .get(`/monthlyreport/${year}/${account}`)
                 .then(response => {
@@ -235,7 +230,7 @@ export default class MonthlyReport extends Component<Props, State> {
                                                 value={
                                                     (this.balance = Report.map(
                                                         x => x.balance
-                                                    ).reduce(reducer))
+                                                    ).reduce(reducer, 0))
                                                 }
                                                 displayType="text"
                                                 thousandSeparator={true}
