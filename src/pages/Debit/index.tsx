@@ -51,10 +51,27 @@ export default class Debit extends Component<Props, State> {
         Date: moment().format()
     };
 
+    formIsValid = () => {
+        const { Account, Value } = this.state;
+
+        const checkAccount = Account > 0;
+        const checkValue = Value > 0;
+
+        this.setState({
+            validationForm: {
+                show: !checkAccount || !checkValue,
+                account: !checkAccount
+                    ? "Account number must be greater than 0"
+                    : "",
+                value: !checkValue ? "Value must be greater than 0" : ""
+            }
+        });
+
+        return checkAccount && checkValue;
+    };
+
     handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
-
-        let formError: boolean = false;
         const { Account, Value, IsDebit, Date } = this.state;
 
         const data = {
@@ -64,29 +81,7 @@ export default class Debit extends Component<Props, State> {
             Date
         };
 
-        if (Account <= 0) {
-            formError = true;
-            this.setState(prevState => ({
-                validationForm: {
-                    show: true,
-                    account: "Account number must be greater than 0",
-                    value: prevState.validationForm.value
-                }
-            }));
-        }
-
-        if (Value <= 0) {
-            formError = true;
-            this.setState(prevState => ({
-                validationForm: {
-                    show: true,
-                    account: prevState.validationForm.account,
-                    value: "Value must be greater than 0"
-                }
-            }));
-        }
-
-        if (!formError) {
+        if (this.formIsValid()) {
             await api
                 .post("/debit", data)
                 .then(response => {
