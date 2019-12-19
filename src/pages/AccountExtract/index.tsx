@@ -1,4 +1,5 @@
 import React, { Component, FormEvent } from "react";
+import moment from "moment";
 import { Redirect } from "react-router-dom";
 import {
     Container,
@@ -43,6 +44,8 @@ export default class AccountExtract extends Component<Props, State> {
         error: null,
         Report: null
     };
+
+    balance: number;
 
     handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
@@ -152,10 +155,19 @@ export default class AccountExtract extends Component<Props, State> {
                                             }
                                         >
                                             <Table.Cell>
-                                                {transaction.date}
+                                                {moment(
+                                                    transaction.date
+                                                ).format("DD/MM/YYYY")}
                                             </Table.Cell>
                                             <Table.Cell>
-                                                {transaction.value}
+                                                <NumberFormat
+                                                    value={transaction.value}
+                                                    displayType="text"
+                                                    thousandSeparator={true}
+                                                    prefix={"$ "}
+                                                    decimalScale={2}
+                                                    fixedDecimalScale
+                                                ></NumberFormat>
                                             </Table.Cell>
                                         </Table.Row>
                                     ))}
@@ -166,9 +178,18 @@ export default class AccountExtract extends Component<Props, State> {
                                             Balance:
                                         </Table.HeaderCell>
                                         <Table.HeaderCell>
-                                            {Report.map(x => x.value).reduce(
-                                                reducer
-                                            )}
+                                            <NumberFormat
+                                                value={
+                                                    (this.balance = Report.map(
+                                                        x => x.value
+                                                    ).reduce(reducer))
+                                                }
+                                                displayType="text"
+                                                thousandSeparator={true}
+                                                prefix={"$ "}
+                                                decimalScale={2}
+                                                fixedDecimalScale
+                                            ></NumberFormat>
                                         </Table.HeaderCell>
                                     </Table.Row>
                                 </Table.Footer>
