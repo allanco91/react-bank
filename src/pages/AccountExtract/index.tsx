@@ -6,18 +6,19 @@ import {
     Form,
     Button,
     Table,
-    Divider
+    Divider,
+    Message
 } from "semantic-ui-react";
 
 import Navbar from "../../components/Navbar";
 import api from "../../services/api";
 
-class Error {
+interface Error {
     status: number;
     message: string;
 }
 
-class Report {
+interface Report {
     id: string;
     account: number;
     value: number;
@@ -25,54 +26,80 @@ class Report {
     date: string;
 }
 
-interface MyProps {}
+interface ValidationForm {
+    show: boolean;
+    account: string;
+}
 
-interface MyState {
+interface Props {}
+
+interface State {
+    account: number;
+    validationForm: ValidationForm;
     shouldRedirect: boolean;
     error: Error;
     Report: Report[];
 }
 
-export default class AccountExtract extends Component<MyProps, MyState> {
-    myFormRef: HTMLFormElement;
-    Account: number;
-
+export default class AccountExtract extends Component<Props, State> {
     constructor(props: any) {
         super(props);
 
         this.state = {
+            account: 0,
+            validationForm: {
+                show: false,
+                account: ""
+            },
             shouldRedirect: false,
             error: null,
             Report: null
         };
     }
 
-    reset = () => {
-        this.myFormRef.reset();
-    };
-
     handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
 
-        await api
-            .get(`/accountextract/${this.Account}`)
-            .then(response => {
-                this.setState({ Report: response.data });
-                this.reset();
-            })
-            .catch(error => {
-                this.setState({
-                    shouldRedirect: true,
-                    error: {
-                        status: error.response.status,
-                        message: error.response.data.error
-                    }
-                });
+        let formError: boolean = false;
+        const { account } = this.state;
+
+        if (account <= 0) {
+            formError = true;
+            this.setState({
+                validationForm: {
+                    show: true,
+                    account: "Account number must be greater than 0"
+                },
+                Report: null
             });
+        }
+
+        if (formError === false) {
+            await api
+                .get(`/accountextract/${account}`)
+                .then(response => {
+                    this.setState({
+                        validationForm: {
+                            show: false,
+                            account: ""
+                        },
+                        Report: response.data
+                    });
+                })
+                .catch(error => {
+                    this.setState({
+                        shouldRedirect: true,
+                        error: {
+                            status: error.response.status,
+                            message: error.response.data.error
+                        }
+                    });
+                });
+        }
     };
 
     render() {
-        const { shouldRedirect, error, Report } = this.state;
+        const { validationForm, shouldRedirect, error, Report } = this.state;
 
         const reducer = (accumulator: number, currentValue: number) =>
             accumulator + currentValue;
@@ -82,14 +109,26 @@ export default class AccountExtract extends Component<MyProps, MyState> {
                 <Navbar />
                 <Container>
                     <Header as="h1">Account Extract</Header>
-                    <Form ref={(el: any) => (this.myFormRef = el)}>
+                    <Divider />
+                    {validationForm.show && (
+                        <Message error>
+                            <Message.Header>
+                                There was some errors with your submission
+                            </Message.Header>
+                            <p>{validationForm.account}</p>
+                        </Message>
+                    )}
+                    <Form>
                         <Form.Field>
                             <label htmlFor="account">Account</label>
                             <input
                                 type="number"
                                 name="Account"
+                                placeholder="Enter an account number"
                                 onChange={e => {
-                                    this.Account = Number(e.target.value);
+                                    this.setState({
+                                        account: Number(e.target.value)
+                                    });
                                 }}
                             ></input>
                         </Form.Field>
@@ -102,9 +141,7 @@ export default class AccountExtract extends Component<MyProps, MyState> {
                     </Form>
                     {Report !== null && (
                         <>
-                            <Header as="h1">
-                                Extract of account number: {this.Account}
-                            </Header>
+                            <Header as="h1">ACCOUNT EXTRACT</Header>
                             <Divider />
                             <Table celled>
                                 <Table.Header>

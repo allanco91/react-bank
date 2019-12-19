@@ -6,18 +6,20 @@ import {
     Form,
     Button,
     Table,
-    Divider
+    Divider,
+    Message
 } from "semantic-ui-react";
 
 import Navbar from "../../components/Navbar";
 import api from "../../services/api";
+import { string } from "yup";
 
-class Error {
+interface Error {
     status: number;
     message: string;
 }
 
-class Report {
+interface Report {
     id: number;
     account: number;
     date: string;
@@ -26,55 +28,105 @@ class Report {
     balance: number;
 }
 
-interface MyProps {}
+interface ValidationForm {
+    show: boolean;
+    account: string;
+    year: string;
+}
 
-interface MyState {
+interface Props {}
+
+interface State {
+    account: number;
+    year: number;
+    validationForm: ValidationForm;
     shouldRedirect: boolean;
     error: Error;
     Report: Report[];
 }
 
-export default class MonthlyReport extends Component<MyProps, MyState> {
-    myFormRef: HTMLFormElement;
-    Account: number;
-    Year: number;
-
+export default class MonthlyReport extends Component<Props, State> {
     constructor(props: any) {
         super(props);
 
         this.state = {
+            account: 0,
+            year: 0,
+            validationForm: {
+                show: false,
+                account: "",
+                year: ""
+            },
             shouldRedirect: false,
             error: null,
             Report: null
         };
     }
 
-    reset = () => {
-        this.myFormRef.reset();
+    handleKeyUp = (event: HTMLFormElement) => {
+        var ex = /^[0-9]+\.?[0-9]*$/;
+        if (ex.test(event.value) == false) {
+            event.value = event.value.substring(0, event.value.length - 1);
+        }
     };
 
     handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
 
-        await api
-            .get(`/monthlyreport/${this.Year}/${this.Account}`)
-            .then(response => {
-                this.setState({ Report: response.data });
-                this.reset();
-            })
-            .catch(error => {
-                this.setState({
-                    shouldRedirect: true,
-                    error: {
-                        status: error.response.status,
-                        message: error.response.data.error
-                    }
+        let formError: boolean = false;
+        const { account, year } = this.state;
+
+        if (account <= 0) {
+            formError = true;
+            this.setState(prevState => ({
+                validationForm: {
+                    show: true,
+                    account: "Account number must be greater than 0",
+                    year: prevState.validationForm.year
+                },
+                Report: null
+            }));
+        }
+
+        if (year <= 0) {
+            formError = true;
+            this.setState(prevState => ({
+                validationForm: {
+                    show: true,
+                    account: prevState.validationForm.account,
+                    year: "Year is not valid"
+                },
+                Report: null
+            }));
+        }
+
+        if (formError === false) {
+            await api
+                .get(`/monthlyreport/${year}/${account}`)
+                .then(response => {
+                    this.setState({
+                        validationForm: {
+                            show: false,
+                            account: "",
+                            year: ""
+                        },
+                        Report: response.data
+                    });
+                })
+                .catch(error => {
+                    this.setState({
+                        shouldRedirect: true,
+                        error: {
+                            status: error.response.status,
+                            message: error.response.data.error
+                        }
+                    });
                 });
-            });
+        }
     };
 
     render() {
-        const { shouldRedirect, error, Report } = this.state;
+        const { validationForm, shouldRedirect, error, Report } = this.state;
 
         const reducer = (accumulator: number, currentValue: number) =>
             accumulator + currentValue;
@@ -84,14 +136,27 @@ export default class MonthlyReport extends Component<MyProps, MyState> {
                 <Navbar />
                 <Container>
                     <Header as="h1">Monthly Report</Header>
-                    <Form ref={(el: any) => (this.myFormRef = el)}>
+                    <Divider />
+                    {validationForm.show && (
+                        <Message error>
+                            <Message.Header>
+                                There was some errors with your submission
+                            </Message.Header>
+                            <p>{validationForm.account}</p>
+                            <p>{validationForm.year}</p>
+                        </Message>
+                    )}
+                    <Form>
                         <Form.Field>
                             <label htmlFor="account">Account</label>
                             <input
                                 type="number"
                                 name="account"
+                                placeholder="Enter an account number"
                                 onChange={e => {
-                                    this.Account = Number(e.target.value);
+                                    this.setState({
+                                        account: Number(e.target.value)
+                                    });
                                 }}
                             ></input>
                         </Form.Field>
@@ -100,8 +165,11 @@ export default class MonthlyReport extends Component<MyProps, MyState> {
                             <input
                                 type="number"
                                 name="year"
+                                placeholder="Enter a year"
                                 onChange={e => {
-                                    this.Year = Number(e.target.value);
+                                    this.setState({
+                                        year: Number(e.target.value)
+                                    });
                                 }}
                             ></input>
                         </Form.Field>
@@ -114,10 +182,7 @@ export default class MonthlyReport extends Component<MyProps, MyState> {
                     </Form>
                     {Report !== null && (
                         <>
-                            <Header as="h1">
-                                ACCOUNT {this.Account} MONTHLY REPORT OF YEAR:{" "}
-                                {this.Year}
-                            </Header>
+                            <Header as="h1">ACCOUNT MONTHLY REPORT</Header>
                             <Table celled>
                                 <Table.Header>
                                     <Table.Row>
