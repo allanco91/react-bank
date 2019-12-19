@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { Button, Header } from "semantic-ui-react";
+import { Button, Header, Container } from "semantic-ui-react";
 
 import Navbar from "../../components/Navbar";
+
 import api from "../../services/api";
 
 type Props = {};
@@ -31,20 +32,18 @@ export default class Home extends Component<Props, State> {
         return (
             <>
                 <Navbar />
-                <div className="container">
-                    <div className="content">
-                        <Header as="h1">{message}</Header>
-                        <Button primary onClick={this.getMessage}>
-                            Teste
-                        </Button>
-                        <Button
-                            primary
-                            onClick={() => this.getMessageWithName("Allan")}
-                        >
-                            Teste 2
-                        </Button>
-                    </div>
-                </div>
+                <Container>
+                    <Header as="h1">{message}</Header>
+                    <Button primary onClick={this.getMessage}>
+                        Teste
+                    </Button>
+                    <Button
+                        primary
+                        onClick={() => this.getMessageWithName("Allan")}
+                    >
+                        Teste 2
+                    </Button>
+                </Container>
             </>
         );
     }
