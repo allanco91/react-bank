@@ -34,7 +34,7 @@ export default class Home extends Component<Props, State> {
                 <Navbar />
                 <Container>
                     <Header as="h1">{message}</Header>
-                    <Button primary onClick={this.getMessage}>
+                    {/* <Button primary onClick={this.getMessage}>
                         Teste
                     </Button>
                     <Button
@@ -42,7 +42,7 @@ export default class Home extends Component<Props, State> {
                         onClick={() => this.getMessageWithName("Allan")}
                     >
                         Teste 2
-                    </Button>
+                    </Button> */}
                 </Container>
             </>
         );
