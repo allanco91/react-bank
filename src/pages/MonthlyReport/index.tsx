@@ -1,4 +1,5 @@
 import React, { Component, FormEvent } from "react";
+import moment from "moment";
 import { Redirect } from "react-router-dom";
 import {
     Container,
@@ -46,6 +47,8 @@ export default class MonthlyReport extends Component<Props, State> {
         error: null,
         Report: null
     };
+
+    balance: number;
 
     handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
@@ -183,16 +186,41 @@ export default class MonthlyReport extends Component<Props, State> {
                                 <Table.Body>
                                     {Report.map(x => (
                                         <Table.Row key={x.id}>
-                                            <Table.Cell>{x.date}</Table.Cell>
+                                            <Table.Cell>
+                                                {moment(x.date).format(
+                                                    "DD/MM/YYYY"
+                                                )}
+                                            </Table.Cell>
                                             <Table.Cell>{x.account}</Table.Cell>
                                             <Table.Cell className="positive">
-                                                {x.credit}
+                                                <NumberFormat
+                                                    value={x.credit}
+                                                    displayType="text"
+                                                    thousandSeparator={true}
+                                                    prefix={"$ "}
+                                                    decimalScale={2}
+                                                    fixedDecimalScale
+                                                ></NumberFormat>
                                             </Table.Cell>
                                             <Table.Cell className="negative">
-                                                {x.debit}
+                                                <NumberFormat
+                                                    value={x.debit}
+                                                    displayType="text"
+                                                    thousandSeparator={true}
+                                                    prefix={"$ "}
+                                                    decimalScale={2}
+                                                    fixedDecimalScale
+                                                ></NumberFormat>
                                             </Table.Cell>
                                             <Table.Cell className="warning">
-                                                {x.balance}
+                                                <NumberFormat
+                                                    value={x.balance}
+                                                    displayType="text"
+                                                    thousandSeparator={true}
+                                                    prefix={"$ "}
+                                                    decimalScale={2}
+                                                    fixedDecimalScale
+                                                ></NumberFormat>
                                             </Table.Cell>
                                         </Table.Row>
                                     ))}
@@ -203,9 +231,18 @@ export default class MonthlyReport extends Component<Props, State> {
                                             Balance:
                                         </Table.HeaderCell>
                                         <Table.HeaderCell>
-                                            {Report.map(x => x.balance).reduce(
-                                                reducer
-                                            )}
+                                            <NumberFormat
+                                                value={
+                                                    (this.balance = Report.map(
+                                                        x => x.balance
+                                                    ).reduce(reducer))
+                                                }
+                                                displayType="text"
+                                                thousandSeparator={true}
+                                                prefix={"$ "}
+                                                decimalScale={2}
+                                                fixedDecimalScale
+                                            ></NumberFormat>
                                         </Table.HeaderCell>
                                     </Table.Row>
                                 </Table.Footer>
